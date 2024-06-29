@@ -16,6 +16,8 @@
   *
   ******************************************************************************
   */
+//#define ETH_TX_DESC_CNT         4U
+//#define ETH_RX_DESC_CNT         4U
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/

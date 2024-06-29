@@ -20,6 +20,7 @@ public:
 	}
 
 	void take() { osSemaphoreAcquire(handle, osWaitForever); }
+	void take(uint32_t ticks) { osSemaphoreAcquire(handle, ticks); }
 	void give() { osSemaphoreRelease(handle); }
 protected:
 private:

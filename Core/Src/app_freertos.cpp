@@ -22,6 +22,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "Debug.h"
+#include "EthernetThread.h"
 #include "MessageHandlerThread.h"
 #include "PWM.h"
 /* USER CODE END Includes */
@@ -44,6 +46,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 MessageHandlerThread messageThread;
+EthernetThread ethernetThread {&heth, &TxConfig, DMARxDscrTab, ETH_RX_DESC_CNT, DMATxDscrTab, ETH_TX_DESC_CNT};
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -88,6 +91,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  (void)Debug::getInstance();
   Thread::launchAllThreads();
   /* USER CODE END RTOS_THREADS */
 
@@ -95,8 +99,8 @@ void MX_FREERTOS_Init(void) {
   /* add events, ... */
 //  Message message { "[{\"Port\":\"G\",\"PinState\":\"High\",\"PinType\":\"PushPull\",\"PinNumber\":4}]" };
 //  messageThread.getQueue().push(message);
-  auto pwm = PWM::findPinDef(Port_e::B, GPIO_PIN_0);
-  PWM::startPWM(pwm, 1000, 0.2);
+//  auto pwm = PWM::findPinDef(Port_e::B, GPIO_PIN_0);
+//  PWM::startPWM(pwm, 1000, 0.2);
   /* USER CODE END RTOS_EVENTS */
 
 }

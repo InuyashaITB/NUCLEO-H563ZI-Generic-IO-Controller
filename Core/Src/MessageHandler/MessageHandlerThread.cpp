@@ -8,6 +8,7 @@
 #include <cstring>
 #include <gason.h>
 
+#include "Debug.h"
 #include <MessageHandlerThread.h>
 #include "Pin.h"
 #include "PWM.h"
@@ -113,7 +114,7 @@ void MessageHandlerThread::main()
 
 	uart.startReceiving();
 
-	PWM::printHelpMessage(uart);
+//	PWM::printHelpMessage(uart);
 
 	while(true)
 	{
@@ -147,7 +148,8 @@ void MessageHandlerThread::main()
 
 		if (sendHelpMessage)
 		{
-			uart.transmit(HELP_MESSAGE);
+//			uart.transmit(HELP_MESSAGE);
+			Debug::getInstance().send(HELP_MESSAGE);
 		}
 	}
 }

@@ -25,6 +25,7 @@ public:
 	UART(UART_HandleTypeDef* handle, RxCallack rxCallback);
 
 	void transmit(const char* message);
+	void transmit(const uint8_t* message, size_t len);
 	void startReceiving();
 
 	UART_HandleTypeDef* getHandle() { return handle; }
@@ -42,6 +43,7 @@ private:
 
 	static std::vector<UART*> _uarts;
 	BinaryLock txLock{"UART_TX_LOCK"};
+	BinaryLock uartLock{nullptr};
 };
 
 

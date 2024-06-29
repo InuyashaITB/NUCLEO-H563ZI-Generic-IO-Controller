@@ -21,7 +21,7 @@ using Message = char[512];
 
 class MessageHandlerThread: public Thread {
 public:
-	MessageHandlerThread() : Thread("MessageHandler", osPriorityNormal, 1024 * 2) { }
+	MessageHandlerThread() : Thread("MessageHandler", osPriorityNormal, 1024 * 4) { }
 	virtual ~MessageHandlerThread() = default;
 
 	Queue<Message>& getQueue() { return messages; }
