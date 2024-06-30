@@ -17,6 +17,7 @@ extern "C"
 	extern TIM_HandleTypeDef htim14;
 	extern TIM_HandleTypeDef htim15;
 	extern TIM_HandleTypeDef htim16;
+	extern uint32_t SystemCoreClock;
 }
 
 /**
@@ -224,7 +225,7 @@ void PWM::startPWM(PWM::PinDef* pd, float frequency, float dutyCycle)
 	float period = 0;
 	while (true)
 	{
-		period = ((HAL_GetTick() / (prescaler + 1)) / frequency);
+		period = ((SystemCoreClock / (prescaler + 1)) / frequency);
 		if (period < 65536)
 		{
 			break;
