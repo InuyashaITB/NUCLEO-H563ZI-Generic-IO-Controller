@@ -24,15 +24,16 @@ public:
 		return name;
 	}
 
-	bool push(T& message, ULONG waitTime = TX_WAIT_FOREVER)
+	bool push(T& message, ULONG waitTime = 0)
 	{
 		auto nextNode = findAvailableNode();
 		if (!nextNode)
 			return false;
 
-		nextNode->inUse = true;
 		memcpy(&nextNode->data, &message, sizeof(T));
-		return tx_queue_send(&handle, &nextNode, waitTime) == TX_SUCCESS;
+		bool result = tx_queue_send(&handle, &nextNode, waitTime) == TX_SUCCESS;
+		nextNode->inUse = result;
+		return result;
 	}
 
 	void pop(T& message)
