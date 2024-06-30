@@ -86,7 +86,7 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   TX_BYTE_POOL *byte_pool = (TX_BYTE_POOL*)memory_ptr;
 
    /* USER CODE BEGIN App_NetXDuo_MEM_POOL */
-  printf("Nx_Iperf application started..\n");
+//  printf("Nx_Iperf application started..\n");
 
   /* USER CODE END App_NetXDuo_MEM_POOL */
   /* USER CODE BEGIN 0 */

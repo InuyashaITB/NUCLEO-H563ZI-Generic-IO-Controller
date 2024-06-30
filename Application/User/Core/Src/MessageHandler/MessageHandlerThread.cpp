@@ -109,7 +109,7 @@ void MessageHandlerThread::main()
 	socket.initialize();
 	socket.listen(42069, 1, [this](uint8_t* data, size_t len) { socketRXReceived(data, len); });
 
-//	PWM::printHelpMessage(uart);
+	PWM::printHelpMessage(uart);
 
 	while(true)
 	{
