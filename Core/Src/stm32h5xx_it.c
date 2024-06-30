@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
+  * Copyright (c) 2023 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -55,8 +55,9 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef handle_GPDMA1_Channel1;
+extern ETH_HandleTypeDef heth;
 extern DMA_HandleTypeDef handle_GPDMA1_Channel0;
+extern DMA_HandleTypeDef handle_GPDMA2_Channel0;
 extern UART_HandleTypeDef huart3;
 extern TIM_HandleTypeDef htim17;
 
@@ -76,7 +77,7 @@ void NMI_Handler(void)
 
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-   while (1)
+  while (1)
   {
   }
   /* USER CODE END NonMaskableInt_IRQn 1 */
@@ -163,20 +164,6 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles EXTI Line13 interrupt.
-  */
-void EXTI13_IRQHandler(void)
-{
-  /* USER CODE BEGIN EXTI13_IRQn 0 */
-
-  /* USER CODE END EXTI13_IRQn 0 */
-  HAL_EXTI_IRQHandler(&H_EXTI_13);
-  /* USER CODE BEGIN EXTI13_IRQn 1 */
-
-  /* USER CODE END EXTI13_IRQn 1 */
-}
-
-/**
   * @brief This function handles GPDMA1 Channel 0 global interrupt.
   */
 void GPDMA1_Channel0_IRQHandler(void)
@@ -188,20 +175,6 @@ void GPDMA1_Channel0_IRQHandler(void)
   /* USER CODE BEGIN GPDMA1_Channel0_IRQn 1 */
 
   /* USER CODE END GPDMA1_Channel0_IRQn 1 */
-}
-
-/**
-  * @brief This function handles GPDMA1 Channel 1 global interrupt.
-  */
-void GPDMA1_Channel1_IRQHandler(void)
-{
-  /* USER CODE BEGIN GPDMA1_Channel1_IRQn 0 */
-
-  /* USER CODE END GPDMA1_Channel1_IRQn 0 */
-  HAL_DMA_IRQHandler(&handle_GPDMA1_Channel1);
-  /* USER CODE BEGIN GPDMA1_Channel1_IRQn 1 */
-
-  /* USER CODE END GPDMA1_Channel1_IRQn 1 */
 }
 
 /**
@@ -230,6 +203,34 @@ void TIM17_IRQHandler(void)
   /* USER CODE BEGIN TIM17_IRQn 1 */
 
   /* USER CODE END TIM17_IRQn 1 */
+}
+
+/**
+  * @brief This function handles GPDMA2 Channel 0 global interrupt.
+  */
+void GPDMA2_Channel0_IRQHandler(void)
+{
+  /* USER CODE BEGIN GPDMA2_Channel0_IRQn 0 */
+
+  /* USER CODE END GPDMA2_Channel0_IRQn 0 */
+  HAL_DMA_IRQHandler(&handle_GPDMA2_Channel0);
+  /* USER CODE BEGIN GPDMA2_Channel0_IRQn 1 */
+
+  /* USER CODE END GPDMA2_Channel0_IRQn 1 */
+}
+
+/**
+  * @brief This function handles Ethernet global interrupt.
+  */
+void ETH_IRQHandler(void)
+{
+  /* USER CODE BEGIN ETH_IRQn 0 */
+
+  /* USER CODE END ETH_IRQn 0 */
+  HAL_ETH_IRQHandler(&heth);
+  /* USER CODE BEGIN ETH_IRQn 1 */
+
+  /* USER CODE END ETH_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
