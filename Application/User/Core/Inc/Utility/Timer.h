@@ -4,37 +4,43 @@
 #include <functional>
 
 #include "app_threadx.h"
+#include "ThreadXMemory.h"
 
 class Timer
 {
 public:
-	Timer(osTimerType_t type, std::function<void(void)> onLoop) : onLoop{onLoop}
+	Timer(const char* name, bool repeating, std::function<void(void)> onLoop) : onLoop{onLoop}, repeating{repeating}, name{name}
 	{
-		handle = osTimerNew(s_TimerCallback,
-							type,
-							this,
-							nullptr);
 	}
 
-	void start(uint32_t ticks)
+	void start(UINT ticks)
 	{
-		osTimerStart(handle, ticks);
+		if (handle.tx_timer_id == 0)
+		{
+			init();
+			tx_timer_create(&handle, (char*)name, s_TimerCallback, (ULONG)this, ticks, repeating ? ticks : 0, TX_NO_ACTIVATE);
+		}
+		tx_timer_change(&handle, ticks, repeating ? ticks : 0);
+		tx_timer_activate(&handle);
 	}
 
 	void stop()
 	{
-		osTimerStop(handle);
+		tx_timer_deactivate(&handle);
 	}
 protected:
+	virtual void init() {}
 private:
 	std::function<void(void)> onLoop;
+	bool repeating;
+	const char* name;
 
-	static void s_TimerCallback(void* arg)
+	static void s_TimerCallback(ULONG arg)
 	{
 		reinterpret_cast<Timer*>(arg)->onLoop();
 	}
 
-	osTimerId_t handle;
+	TX_TIMER handle;
 };
 
 

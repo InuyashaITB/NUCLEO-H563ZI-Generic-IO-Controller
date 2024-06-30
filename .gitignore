@@ -1,2 +1,3 @@
 Debug/
 Generic_GPIO Debug.launch
+.settings/com.st.stm32cube.ide.mcu.sfrview.prefs

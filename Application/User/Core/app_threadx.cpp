@@ -27,6 +27,7 @@
 #include "Thread.h"
 #include "Debug.h"
 #include "MessageHandlerThread.h"
+#include "HeartBeat.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,6 +49,7 @@
 /* USER CODE BEGIN PV */
 static TXMemory txMemory;
 static MessageHandlerThread messageHandler;
+static HeartBeat heartBeat { GPIOF, GPIO_PIN_4 };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -55,6 +57,7 @@ static MessageHandlerThread messageHandler;
 extern "C" void reroute_tx_app()
 {
 	Thread::launchAllThreads();
+	heartBeat.start(MS_TO_TICKS(500));
 }
 /* USER CODE END PFP */
 

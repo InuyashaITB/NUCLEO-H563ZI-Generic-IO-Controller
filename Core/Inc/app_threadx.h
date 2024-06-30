@@ -46,6 +46,8 @@
 #define TX_LOWEST_PRIORITY (TX_MAX_PRIORITIES - 1)
 #define TX_MID_PRIORITY (TX_MAX_PRIORITIES / 2)
 #define TX_HIGHEST_PRIORITY (0)
+
+#define MS_TO_TICKS(ms) ((ms * TX_TIMER_TICKS_PER_SECOND) / 1000)
 /* USER CODE END EC */
 
 /* Private defines -----------------------------------------------------------*/
