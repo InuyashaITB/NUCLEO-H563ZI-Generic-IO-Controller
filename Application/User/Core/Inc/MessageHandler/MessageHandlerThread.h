@@ -30,7 +30,7 @@ private:
 	void uartRXReceived(char* rx);
 	void socketRXReceived(uint8_t* data, size_t len);
 
-	Queue<Message> messages {1};
+	Queue<Message> messages {5};
 
 	char stringBuffer[1024 * 24];
 	size_t stringLength;
