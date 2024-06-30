@@ -140,7 +140,7 @@ bool Socket::initialize()
 		return false;
 	}
 
-	Debug::send("Socket Initialization Complete");
+//	Debug::send("Socket Initialization Complete");
 	return result == NX_SUCCESS;
 }
 
@@ -163,7 +163,7 @@ bool Socket::listen(UINT port, UINT maxConnections, DataReceivedFunction func)
 	auto cmd = Socket::MessageIDs::ListenOnSocket;
 	queue.push(cmd);
 
-	Debug::send("Socket Listen Started");
+//	Debug::send("Socket Listen Started");
 	return result == NX_SUCCESS;
 }
 
