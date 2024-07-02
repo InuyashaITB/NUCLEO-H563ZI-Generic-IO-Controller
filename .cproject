@@ -52,6 +52,7 @@
 									<listOptionValue builtIn="false" value="../NetXDuo/App"/>
 									<listOptionValue builtIn="false" value="../NetXDuo/Target"/>
 									<listOptionValue builtIn="false" value="../Core/Inc"/>
+									<listOptionValue builtIn="false" value="../Application/User/Core/Inc/FLASH"/>
 									<listOptionValue builtIn="false" value="../Application/User/Core/Inc/IO"/>
 									<listOptionValue builtIn="false" value="../Application/User/Core/Inc/IP"/>
 									<listOptionValue builtIn="false" value="../Application/User/Core/Inc/JSON"/>
@@ -95,6 +96,7 @@
 									<listOptionValue builtIn="false" value="../NetXDuo/App"/>
 									<listOptionValue builtIn="false" value="../NetXDuo/Target"/>
 									<listOptionValue builtIn="false" value="../Core/Inc"/>
+									<listOptionValue builtIn="false" value="../Application/User/Core/Inc/FLASH"/>
 									<listOptionValue builtIn="false" value="../Application/User/Core/Inc/IO"/>
 									<listOptionValue builtIn="false" value="../Application/User/Core/Inc/IP"/>
 									<listOptionValue builtIn="false" value="../Application/User/Core/Inc/JSON"/>
