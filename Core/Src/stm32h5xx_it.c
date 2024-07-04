@@ -62,7 +62,7 @@ extern UART_HandleTypeDef huart3;
 extern TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN EV */
-
+int nmi_occurred = 0;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -74,12 +74,13 @@ extern TIM_HandleTypeDef htim17;
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
-
+	FLASH_NS->ECCDETR = (1 << 31);
+	nmi_occurred++;
   /* USER CODE END NonMaskableInt_IRQn 0 */
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-  while (1)
-  {
-  }
+//  while (1)
+//  {
+//  }
   /* USER CODE END NonMaskableInt_IRQn 1 */
 }
 
