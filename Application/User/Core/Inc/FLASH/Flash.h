@@ -8,7 +8,8 @@
 #include "stm32h5xx_hal_flash.h"
 #include "stm32h5xx_hal_flash_ex.h"
 
-static const constexpr uint32_t FLASH_EDATA_SECTOR_SIZE = (FLASH_EDATA_SIZE / 2) / 8;
+static const constexpr uint32_t TOTAL_FLASH_EDATA_SIZE = (FLASH_EDATA_SIZE / 2);
+static const constexpr uint32_t FLASH_EDATA_SECTOR_SIZE = TOTAL_FLASH_EDATA_SIZE / 8;
 static const uint32_t* FLASH_EDATA_BEGIN { (uint32_t*)(FLASH_EDATA_BASE_NS) };
 static const uint32_t* FLASH_EDATA_SECTOR_0_ADDRESS { FLASH_EDATA_BEGIN };
 static const uint32_t* FLASH_EDATA_SECTOR_1_ADDRESS { FLASH_EDATA_SECTOR_0_ADDRESS + FLASH_EDATA_SECTOR_SIZE };
@@ -26,7 +27,9 @@ static constexpr uint32_t FLASH_ERASE_ERROR_NONE = 0xFFFFFFFFU;
 class Flash {
 public:
 	Flash(FLASH_TypeDef* flashHandle);
+	void eraseAll();
 	bool write(const uint16_t* pDestination, const uint16_t* pInput, size_t len);
+	bool read(const uint16_t* pFlash, uint16_t* pOutput, size_t len);
 
 	enum Banks : const uint32_t {
 		Bank1 = FLASH_BANK_1,

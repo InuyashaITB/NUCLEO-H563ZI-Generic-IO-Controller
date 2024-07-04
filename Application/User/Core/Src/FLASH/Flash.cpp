@@ -64,6 +64,21 @@ const uint32_t* Flash::findSectorForDestination(const uint16_t* pDestination)
     return nullptr; // Return nullptr if the address is not in any sector
 }
 
+void Flash::eraseAll()
+{
+	Flash::Banks bank = static_cast<Flash::Banks>(FLASH_EDATA_BANK);
+
+	std::vector<EraseOptions> opts;
+
+	for (auto entry : FLASH_EDATA_SECTOR_MAP)
+	{
+		auto sector = entry.second;
+		opts.push_back(EraseOptions { bank, sector });
+	}
+
+	erase(opts);
+}
+
 bool Flash::erase(std::vector<EraseOptions> opts)
 {
 	bool success = true;
@@ -117,7 +132,7 @@ bool Flash::write(const uint16_t* pDestination, const uint16_t* pInput, size_t l
 	std::vector<const uint32_t*> allAffectedSectors = getSectorsInRange(pDestination, len);
 
 	std::vector<const uint32_t*> sectorsNeedingErased{};
-	for (size_t i = 0; i < len; i += sizeof(uint16_t))
+	for (size_t i = 0; i < len; i++)
 	{
 		uint16_t inputValue = *(pInput + i);
 		uint16_t flashData = *(pDestination + i);
@@ -134,13 +149,6 @@ bool Flash::write(const uint16_t* pDestination, const uint16_t* pInput, size_t l
 	{
 		const uint16_t* currentSector = reinterpret_cast<const uint16_t*>(allAffectedSectors[i]);
 		const uint16_t* endCurrentSector = currentSector + (FLASH_EDATA_SECTOR_SIZE / sizeof(uint16_t));
-
-		static uint16_t flashDataCopy[FLASH_EDATA_SECTOR_SIZE / sizeof(uint16_t)];
-		for (size_t i = 0; i < FLASH_EDATA_SECTOR_SIZE / sizeof(uint16_t); i++)
-		{
-			flashDataCopy[i] = *(currentSector + i);
-		}
-
 		bool eraseOccured = false;
 
 		// If current sector is listed in the sectors to be erased...
@@ -157,31 +165,40 @@ bool Flash::write(const uint16_t* pDestination, const uint16_t* pInput, size_t l
 		}
 
 		unlock();
-		// There is some 'unprogrammed' data at the start of this sector that will need to be retained
-		if (eraseOccured && i == 0 && pDestination > currentSector)
+		if (eraseOccured)
 		{
-			ssize_t numberOfHalfWords = std::floor(((uint32_t)pDestination - (uint32_t)currentSector) / (float)sizeof(uint16_t));
-			for (const uint16_t* pRetainedData = reinterpret_cast<const uint16_t*>(&flashDataCopy[0]),
-					*pRetainedFlashDestination = reinterpret_cast<const uint16_t*>(currentSector);
-					numberOfHalfWords > 0;
-					pRetainedData++,
-					numberOfHalfWords--)
+			static uint16_t flashDataCopy[FLASH_EDATA_SECTOR_SIZE / sizeof(uint16_t)];
+			for (size_t i = 0; i < FLASH_EDATA_SECTOR_SIZE / sizeof(uint16_t); i++)
 			{
-				success = success && (HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD_EDATA, (uint32_t)pRetainedFlashDestination, (uint32_t)pRetainedData) == HAL_OK);
+				flashDataCopy[i] = *(currentSector + i);
 			}
-		}
-		// There is some 'unprogrammed' data at the end of this sector that will need to be retained
-		if (eraseOccured && i == (allAffectedSectors.size() - 1) && (pDestinationEnd < endCurrentSector - 1))
-		{
-			size_t remainingHalfWords = (size_t)(endCurrentSector - pDestinationEnd);
-			size_t offsetHalfWords = (size_t)(pDestinationEnd - currentSector);
-			for (const uint16_t* pRetainedData = reinterpret_cast<const uint16_t*>(flashDataCopy + offsetHalfWords),
-					*pRetainedFlashDestination = reinterpret_cast<const uint16_t*>(currentSector + offsetHalfWords);
-					remainingHalfWords > 0;
-					pRetainedData++,
-					remainingHalfWords--)
+
+			// There is some 'unprogrammed' data at the start of this sector that will need to be retained
+			if (i == 0 && pDestination > currentSector)
 			{
-				success = success && (HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD_EDATA, (uint32_t)pRetainedFlashDestination, (uint32_t)pRetainedData) == HAL_OK);
+				ssize_t numberOfHalfWords = std::floor(((uint32_t)pDestination - (uint32_t)currentSector) / (float)sizeof(uint16_t));
+				for (const uint16_t* pRetainedData = reinterpret_cast<const uint16_t*>(&flashDataCopy[0]),
+						*pRetainedFlashDestination = reinterpret_cast<const uint16_t*>(currentSector);
+						numberOfHalfWords > 0;
+						pRetainedData++,
+						numberOfHalfWords--)
+				{
+					success = success && (HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD_EDATA, (uint32_t)pRetainedFlashDestination, (uint32_t)pRetainedData) == HAL_OK);
+				}
+			}
+			// There is some 'unprogrammed' data at the end of this sector that will need to be retained
+			if (i == (allAffectedSectors.size() - 1) && (pDestinationEnd < endCurrentSector - 1))
+			{
+				size_t remainingHalfWords = (size_t)(endCurrentSector - pDestinationEnd);
+				size_t offsetHalfWords = (size_t)(pDestinationEnd - currentSector);
+				for (const uint16_t* pRetainedData = reinterpret_cast<const uint16_t*>(flashDataCopy + offsetHalfWords),
+						*pRetainedFlashDestination = reinterpret_cast<const uint16_t*>(currentSector + offsetHalfWords);
+						remainingHalfWords > 0;
+						pRetainedData++,
+						remainingHalfWords--)
+				{
+					success = success && (HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD_EDATA, (uint32_t)pRetainedFlashDestination, (uint32_t)pRetainedData) == HAL_OK);
+				}
 			}
 		}
 
@@ -199,4 +216,12 @@ bool Flash::write(const uint16_t* pDestination, const uint16_t* pInput, size_t l
 	lock();
 
 	return success;
+}
+
+bool Flash::read(const uint16_t* pFlash, uint16_t* pOutput, size_t len)
+{
+	nmi_occurred = 0;
+	for (; len > 0; pFlash++, pOutput++, len--)
+		*pOutput = *pFlash;
+	return nmi_occurred == 0;
 }

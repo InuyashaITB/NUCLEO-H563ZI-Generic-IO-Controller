@@ -28,7 +28,7 @@
 #include "Debug.h"
 #include "MessageHandlerThread.h"
 #include "HeartBeat.h"
-#include "Flash.h"
+#include "Configuration.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,26 +51,17 @@
 static TXMemory txMemory;
 static MessageHandlerThread messageHandler;
 static HeartBeat heartBeat { GPIOF, GPIO_PIN_4 };
-static Flash flash { FLASH_NS };
+static Configuration config;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
 extern "C" void reroute_tx_app()
 {
+	config.data.bootCount++;
+	config.store();
 	Thread::launchAllThreads();
 	heartBeat.start(MS_TO_TICKS(500));
-
-	static constexpr uint16_t test_data[] = {
-		0x0123,
-		0x4567,
-		0xABCD,
-		0xEF01,
-	};
-
-	const uint16_t* pFlashDestination = reinterpret_cast<const uint16_t*>(FLASH_EDATA_SECTOR_0_ADDRESS);
-	auto result = flash.write(pFlashDestination, test_data, sizeof(test_data) / sizeof(test_data[0]));
-	Debug::send("Flash result: %s", result ? "Success" : "Failure");
 }
 /* USER CODE END PFP */
 
