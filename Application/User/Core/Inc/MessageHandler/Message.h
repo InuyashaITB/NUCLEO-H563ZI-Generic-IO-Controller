@@ -5,6 +5,7 @@
 #include <stm32h5xx_hal.h>
 #include <stm32h5xx_hal_tim.h>
 
+#define COMMAND_NAME "Command"
 #define PORT_NAME "Port"
 #define PIN_STATE_NAME "PinState"
 #define PIN_TYPE_NAME "PinType"
@@ -14,25 +15,36 @@
 #define PWM_FREQUENCY_NAME "Frequency"
 #define PWM_DUTY_CYCLE_NAME "DutyCycle"
 
-enum Port_e {
-	A, B, C, D, E, F, G, H, I
+enum Port_e : uint8_t{
+	A = 0,
+	B,
+	C,
+	D,
+	E,
+	F,
+	G,
+	H,
+	I,
+	COUNT
 };
 
-enum PinType_e {
-	PWM,
+enum class PinType_e : uint8_t {
+	PWM = 0,
 	OpenDrain,
 	PushPull,
-	HighZ
+	HighZ,
+	COUNT
 };
 
-enum PinState_e {
-	NoChange,
+enum class PinState_e : uint8_t {
+	NoChange = 0,
 	Low,
-	High
+	High,
+	COUNT
 };
 
-enum Timer_e {
-	None,
+enum class Timer_e : uint8_t {
+	None = 0,
 	Timer1,
 	Timer2,
 	Timer3,
@@ -44,6 +56,7 @@ enum Timer_e {
 	Timer14,
 	Timer15,
 	Timer16,
+	COUNT
 };
 
 struct PinConfiguration
@@ -56,6 +69,14 @@ struct PinConfiguration
 	uint16_t channel;
 	float frequency;
 	float duty;
+
+	bool valid()
+	{
+		return port >= Port_e::A && port < Port_e::COUNT
+			&& pinNumber <= 16
+			&& pinType >= PinType_e::PWM && pinType < PinType_e::COUNT
+			&& (pinType == PinType_e::PWM ? (timer >= Timer_e::None && timer < Timer_e::COUNT) : (pinState >= PinState_e::Low && pinState < PinState_e::COUNT));
+	}
 };
 
 static constexpr std::pair<const char*, Port_e> portMap[] = {

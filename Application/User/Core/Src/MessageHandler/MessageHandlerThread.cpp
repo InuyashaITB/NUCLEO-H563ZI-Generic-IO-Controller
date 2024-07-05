@@ -8,7 +8,7 @@
 
 using namespace gason;
 
-static constexpr char END_OF_MESSAGE[] = "\r\r\r\r\0";
+static constexpr char END_OF_MESSAGE[] = "\r\r\r\r";
 static const char* HELP_MESSAGE = "Example Structure:"
 								"\r\n["
 								"\r\n\t{"
@@ -165,11 +165,26 @@ bool MessageHandlerThread::parseJson(char* buffer) {
 	if (JSON_PARSE_OK == parseResult && jsonValue.getTag() == JsonTag::JSON_ARRAY)
 	{
 		bool result = true;
+		bool stored = false;
+		bool reset = false;
 		for (auto i : jsonValue)
 		{
 			PinConfiguration config;
 
 			JsonValue& pinConfigurationJson = i->value;
+			auto command = pinConfigurationJson(COMMAND_NAME);
+			if (command)
+			{
+				if (strcmp("StoreConfig", command.toString()) == 0)
+				{
+					stored = true;
+				}
+				else if (strcmp("ResetStorage", command.toString()) == 0)
+				{
+					reset = true;
+				}
+			}
+
 			config.port = convertPort(pinConfigurationJson(PORT_NAME));
 			config.pinState = convertPinState(pinConfigurationJson(PIN_STATE_NAME));
 			config.pinType = convertPinType(pinConfigurationJson(PIN_TYPE_NAME));
@@ -182,19 +197,25 @@ bool MessageHandlerThread::parseJson(char* buffer) {
 				config.channel = convertChannel(pinConfigurationJson(PWM_CHANNEL_NAME));
 				config.frequency = pinConfigurationJson(PWM_FREQUENCY_NAME).toNumber();
 				config.duty = pinConfigurationJson(PWM_DUTY_CYCLE_NAME).toNumber();
-				auto pinDesc = PWM::findPinDef(config.port, config.pinNumber, config.timer, config.channel);
-				if (pinDesc)
-					PWM::startPWM(pinDesc, config.frequency, config.duty);
 				break;
 			}
 			case PinType_e::OpenDrain:
 			case PinType_e::PushPull:
 			case PinType_e::HighZ: {
-				Pin p;
-				p.handleConfiguration(config);
 				break;
 			}
+			default: continue;
 			}
+
+			configurator.handleConfiguration(config);
+		}
+
+		if (stored)
+			Debug::send("Storage Result: %s", configurator.store() ? "Success" : "Failure");
+		else if (reset)
+		{
+			Debug::send("Resetting Storage");
+			configurator.reset();
 		}
 
 		return result;

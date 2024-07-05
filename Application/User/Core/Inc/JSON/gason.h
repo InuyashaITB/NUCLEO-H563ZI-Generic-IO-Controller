@@ -24,6 +24,7 @@
 #ifndef __GASON_HPP__
 #define __GASON_HPP__
 ///////////////////////////////////////////////////////////////////////////////
+#define NDEBUG
 #include <stdint.h>
 #include <stddef.h>
 #include <assert.h>

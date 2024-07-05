@@ -49,19 +49,21 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 static TXMemory txMemory;
-static MessageHandlerThread messageHandler;
-static HeartBeat heartBeat { GPIOF, GPIO_PIN_4 };
 static Configuration config;
+static MessageHandlerThread messageHandler {config};
+static HeartBeat heartBeat { GPIOF, GPIO_PIN_4 };
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
 extern "C" void reroute_tx_app()
 {
-	config.data.bootCount++;
-	config.store();
 	Thread::launchAllThreads();
 	heartBeat.start(MS_TO_TICKS(500));
+
+	for (auto pair : portMap)
+		for (auto storedConfig : config.data.pinConfigurations[pair.second])
+			config.handleConfiguration(storedConfig);
 }
 /* USER CODE END PFP */
 

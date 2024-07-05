@@ -20,7 +20,7 @@ static_assert(sizeof(ElementType) % (sizeof(uint16_t)) == 0, "ElementType must b
 		if (nextIndex > MAX_ELEMENTS)
 		{
 			reset();
-			nextIndex = 1;
+			nextIndex = 0;
 		}
 
 		return storeData(nextIndex, data);
@@ -33,6 +33,12 @@ static_assert(sizeof(ElementType) % (sizeof(uint16_t)) == 0, "ElementType must b
 			return false;
 		else
 			return readData(nextIndex - 1, data);
+	}
+
+	void reset()
+	{
+		flash.eraseAll();
+		std::fill(std::begin(index.indecies), std::end(index.indecies), 0xFFFF'FFFF);
 	}
 protected:
 private:
@@ -51,12 +57,6 @@ private:
 
 	Flash& flash;
 	Indexer index;
-
-	void reset()
-	{
-		flash.eraseAll();
-		std::fill(std::begin(index.indecies), std::end(index.indecies), 0xFFFF'FFFF);
-	}
 
 	void readIndex()
 	{

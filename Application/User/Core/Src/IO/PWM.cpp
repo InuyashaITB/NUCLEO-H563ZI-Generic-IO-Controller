@@ -186,8 +186,27 @@ void PWM::printHelpMessage(UART& uart)
 static const std::pair<Timer_e, TIM_HandleTypeDef*> TimerEnumMap[] =
 {
 	{ Timer_e::None, nullptr },
-	{ Timer_e::Timer1, &htim1 }
+	{ Timer_e::Timer1, &htim1 },
+	{ Timer_e::Timer2, &htim2 },
+	{ Timer_e::Timer3, &htim3 },
+	{ Timer_e::Timer4, &htim4 },
+	{ Timer_e::Timer5, &htim5 },
+	{ Timer_e::Timer8, &htim8 },
+	{ Timer_e::Timer12, &htim12 },
+	{ Timer_e::Timer13, &htim13 },
+	{ Timer_e::Timer14, &htim14 },
+	{ Timer_e::Timer15, &htim15 },
+	{ Timer_e::Timer16, &htim16 }
 };
+
+static TIM_HandleTypeDef* findHandle(Timer_e e)
+{
+	for (auto pair : TimerEnumMap)
+		if (pair.first == e)
+			return pair.second;
+
+	return nullptr;
+}
 
 PWM::PinDef* PWM::findPinDef(Port_e port, uint32_t pin, Timer_e timer, uint16_t channel)
 {
@@ -196,7 +215,7 @@ PWM::PinDef* PWM::findPinDef(Port_e port, uint32_t pin, Timer_e timer, uint16_t 
 	{
 		if (gpioPort == pinDef.gpioPortHandle && pin == pinDef.pinNumber)
 		{
-			if ((timer == Timer_e::None || TimerEnumMap[timer].second == pinDef.timerHandle) &&
+			if ((timer == Timer_e::None || findHandle(timer) == pinDef.timerHandle) &&
 				(channel == TIM_CHANNEL_ALL || channel == pinDef.timerChannel))
 			{
 				return &pinDef;
