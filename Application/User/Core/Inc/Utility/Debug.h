@@ -5,6 +5,7 @@
 #include <cstdio>
 
 #include <QueueT.h>
+#include <Socket.h>
 #include <Thread.h>
 #include <UART.h>
 
@@ -21,6 +22,23 @@ public:
 	static void send(const uint8_t *ptr, size_t size) {
 		getInstance().s(ptr, size);
 	}
+
+	static void transmitDirect(const char* m)
+	{
+		for (auto uart : UART::getAllChannels())
+			uart->transmit(m);
+
+		for (auto socket : Socket::getAllSockets())
+			socket->transmit(m);
+	}
+	static void transmitDirect(OutputType& m)
+	{
+		for (auto uart : UART::getAllChannels())
+			uart->transmit(m);
+
+		for (auto socket : Socket::getAllSockets())
+			socket->transmit(m);
+	}
 protected:
 
 	static Debug& getInstance() {
@@ -33,16 +51,16 @@ protected:
 		OutputType m { };
 		while (true) {
 			queue.pop(m);
-			uart->transmit(m);
+			Debug::transmitDirect(m);
 		}
 	}
 private:
 	Debug() : Thread { "Debug", TX_LOWEST_PRIORITY, 1024 } {
-		uart = UART::findUARTByHandle(nullptr);
 	}
 
 	Queue<OutputType> queue { 50 };
 	UART *uart;
+	Socket *socket;
 
 	void s(const char *str, va_list args) {
 		OutputType message;

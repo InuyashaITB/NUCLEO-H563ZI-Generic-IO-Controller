@@ -22,7 +22,7 @@ public:
 
 	static PinDef* findPinDef(Port_e port, uint32_t pin, Timer_e timer = Timer_e::None, uint16_t channel = TIM_CHANNEL_ALL);
 	static void startPWM(PinDef* pd, float frequency, float dutyCycle);
-	static void printHelpMessage(UART& uart);
+	static void printHelpMessage();
 protected:
 private:
 	static std::vector<PinDef> _pin_defenitions;

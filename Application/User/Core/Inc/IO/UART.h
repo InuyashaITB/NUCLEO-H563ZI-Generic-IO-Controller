@@ -26,6 +26,7 @@ public:
 	static UART* findUARTByHandle(UART_HandleTypeDef* handle);
 	static void RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size);
 	static void TxCpltCallback(UART_HandleTypeDef *huart);
+	static std::vector<UART*>& getAllChannels() { return _uarts; }
 protected:
 
 private:

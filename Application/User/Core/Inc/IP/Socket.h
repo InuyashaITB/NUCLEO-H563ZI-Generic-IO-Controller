@@ -36,8 +36,11 @@ public:
 	};
 
 	bool initialize();
+	void transmit(const char* message);
 	bool listen(UINT port, UINT maxConnections, DataReceivedFunction func);
 	void quit();
+
+	static std::vector<Socket*>& getAllSockets() { return _sockets; }
 protected:
 	virtual void main() override;
 private:

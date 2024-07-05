@@ -109,8 +109,6 @@ void MessageHandlerThread::main()
 	socket.initialize();
 	socket.listen(42069, 1, [this](uint8_t* data, size_t len) { socketRXReceived(data, len); });
 
-	PWM::printHelpMessage(uart);
-
 	while(true)
 	{
 		bool resetBuffer{false};
@@ -182,6 +180,10 @@ bool MessageHandlerThread::parseJson(char* buffer) {
 				else if (strcmp("ResetStorage", command.toString()) == 0)
 				{
 					reset = true;
+				}
+				else if (strcmp("PrintPWM", command.toString()) == 0)
+				{
+					PWM::printHelpMessage();
 				}
 			}
 

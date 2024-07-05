@@ -144,6 +144,15 @@ bool Socket::initialize()
 	return result == NX_SUCCESS;
 }
 
+void Socket::transmit(const char* message)
+{
+	NX_PACKET* sendPacket{nullptr};
+	nx_packet_allocate(&TXMemory::getPacketPool(), &sendPacket, NX_TCP_PACKET, NX_WAIT_FOREVER);
+	nx_packet_data_append(sendPacket, (void*)message, strlen(message), &TXMemory::getPacketPool(), NX_WAIT_FOREVER);
+	nx_tcp_socket_send(&socketHandle, sendPacket, 1);
+	nx_packet_release(sendPacket);
+}
+
 bool Socket::listen(UINT port, UINT maxConnections, DataReceivedFunction func)
 {
 	UINT result;
