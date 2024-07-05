@@ -28,6 +28,7 @@
 #include "Debug.h"
 #include "MessageHandlerThread.h"
 #include "HeartBeat.h"
+#include "Configuration.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -48,7 +49,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 static TXMemory txMemory;
-static MessageHandlerThread messageHandler;
+static Configuration config;
+static MessageHandlerThread messageHandler {config};
 static HeartBeat heartBeat { GPIOF, GPIO_PIN_4 };
 /* USER CODE END PV */
 
@@ -58,6 +60,10 @@ extern "C" void reroute_tx_app()
 {
 	Thread::launchAllThreads();
 	heartBeat.start(MS_TO_TICKS(500));
+
+	for (auto pair : portMap)
+		for (auto storedConfig : config.data.pinConfigurations[pair.second])
+			config.handleConfiguration(storedConfig);
 }
 /* USER CODE END PFP */
 

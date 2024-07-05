@@ -41,7 +41,7 @@ private:
 		uart = UART::findUARTByHandle(nullptr);
 	}
 
-	Queue<OutputType> queue { 5 };
+	Queue<OutputType> queue { 50 };
 	UART *uart;
 
 	void s(const char *str, va_list args) {

@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <Configuration.h>
 #include <Message.h>
 #include <QueueT.h>
 #include <Socket.h>
@@ -15,7 +16,7 @@ using Message = char[512];
 
 class MessageHandlerThread: public Thread {
 public:
-	MessageHandlerThread() : Thread("MessageHandler", TX_MID_PRIORITY, 1024 * 4) { }
+	MessageHandlerThread(Configuration& config) : Thread("MessageHandler", TX_MID_PRIORITY, 1024 * 4), configurator{config} { }
 	virtual ~MessageHandlerThread() = default;
 
 	Queue<Message>& getQueue() { return messages; }
@@ -36,6 +37,7 @@ private:
 	size_t stringLength;
 
 	UART uart{&huart3, [this](char* buff) { uartRXReceived(buff); }};
+	Configuration& configurator;
 };
 
 #endif /* SRC_MESSAGEHANDLER_MESSAGEHANDLERTASK_H_ */

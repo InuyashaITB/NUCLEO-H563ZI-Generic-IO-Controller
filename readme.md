@@ -28,3 +28,17 @@ MessageHandlerThread determines if the input is "complete" when it receives 4 re
         "PinNumber": 4
     }
 ]
+
+## To store the current configuration to non-volatile memory ##
+[
+	{
+		"Command": "StoreConfig"
+	}
+]
+
+## To reset the configuration of non-volatile memory ##
+[
+	{
+		"Command": "ResetStorage"
+	}
+]

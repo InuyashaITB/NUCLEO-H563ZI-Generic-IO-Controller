@@ -103,6 +103,7 @@ static void MX_TIM13_Init(void);
 static void MX_TIM14_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_TIM16_Init(void);
+static void MX_FLASH_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -136,7 +137,30 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+  MPU_Attributes_InitTypeDef   attr;
+  MPU_Region_InitTypeDef       region;
 
+  /* Disable MPU before perloading and config update */
+  HAL_MPU_Disable();
+
+  /* Define cacheable memory via MPU */
+  attr.Number             = MPU_ATTRIBUTES_NUMBER0;
+  attr.Attributes         = 0 ;
+  HAL_MPU_ConfigMemoryAttributes(&attr);
+
+  /* BaseAddress-LimitAddress configuration */
+  region.Enable           = MPU_REGION_ENABLE;
+  region.Number           = MPU_REGION_NUMBER0;
+  region.AttributesIndex  = MPU_ATTRIBUTES_NUMBER0;
+  region.BaseAddress      = FLASH_EDATA_BASE_NS;
+  region.LimitAddress     = FLASH_EDATA_BASE_NS + (FLASH_EDATA_SIZE / 2) - 1; // 0x9060000
+  region.AccessPermission = MPU_REGION_ALL_RW;
+  region.DisableExec      = MPU_INSTRUCTION_ACCESS_ENABLE;
+  region.IsShareable      = MPU_ACCESS_NOT_SHAREABLE;
+  HAL_MPU_ConfigRegion(&region);
+
+  /* Enable the MPU */
+  HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -146,7 +170,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_ETH_Init();
   MX_RNG_Init();
-  MX_ICACHE_Init();
+//  MX_ICACHE_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
@@ -158,6 +182,7 @@ int main(void)
   MX_TIM14_Init();
   MX_TIM15_Init();
   MX_TIM16_Init();
+  MX_FLASH_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -276,6 +301,63 @@ static void MX_ETH_Init(void)
   /* USER CODE BEGIN ETH_Init 2 */
 
   /* USER CODE END ETH_Init 2 */
+
+}
+
+/**
+  * @brief FLASH Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_FLASH_Init(void)
+{
+
+  /* USER CODE BEGIN FLASH_Init 0 */
+
+  /* USER CODE END FLASH_Init 0 */
+
+  FLASH_OBProgramInitTypeDef pOBInit = {0};
+
+  /* USER CODE BEGIN FLASH_Init 1 */
+  pOBInit.Banks = FLASH_BANK_1;
+  HAL_FLASHEx_OBGetConfig(&pOBInit);
+
+  if (pOBInit.EDATASize != 8)
+  {
+  /* USER CODE END FLASH_Init 1 */
+  if (HAL_FLASH_Unlock() != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /* Option Bytes settings */
+
+  if (HAL_FLASH_OB_Unlock() != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  pOBInit.OptionType = OPTIONBYTE_EDATA;
+  pOBInit.EDATASize = 8;
+  if (HAL_FLASHEx_OBProgram(&pOBInit) != HAL_OK)
+  {
+	Error_Handler();
+  }
+  if (HAL_FLASH_OB_Lock() != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_FLASH_Lock() != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /* Launch Option Bytes Loading */
+  HAL_FLASH_OB_Launch();
+
+  /* USER CODE BEGIN FLASH_Init 2 */
+  }
+  /* USER CODE END FLASH_Init 2 */
 
 }
 
