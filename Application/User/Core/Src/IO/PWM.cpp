@@ -2,6 +2,7 @@
 
 #include "stm32h5xx_hal.h"
 
+#include "Debug.h"
 #include "PWM.h"
 
 extern "C"
@@ -164,10 +165,10 @@ const char* channelToString(uint32_t channel)
 	return "?";
 }
 
-void PWM::printHelpMessage(UART& uart)
+void PWM::printHelpMessage()
 {
 	char buffer[256];
-	uart.transmit("PWM able pins: [\r\n");
+	Debug::transmitDirect("PWM able pins: [\r\n");
 
 	for (auto& pindef : _pin_defenitions)
 	{
@@ -177,10 +178,10 @@ void PWM::printHelpMessage(UART& uart)
 				hTimerToString(pindef.timerHandle),
 				channelToString(pindef.timerChannel),
 				&pindef != &_pin_defenitions.back() ? "," : "");
-		uart.transmit(buffer);
+		Debug::transmitDirect(buffer);
 	}
 
-	uart.transmit("]\r\n");
+	Debug::transmitDirect("]\r\n");
 }
 
 static const std::pair<Timer_e, TIM_HandleTypeDef*> TimerEnumMap[] =

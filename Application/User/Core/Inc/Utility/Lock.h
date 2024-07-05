@@ -10,8 +10,8 @@ public:
 		tx_semaphore_create(&handle, (char*)name, count);
 	}
 
-	void take() { tx_semaphore_get(&handle, TX_WAIT_FOREVER); }
-	void take(UINT ticks) { tx_semaphore_get(&handle, ticks); }
+	bool take() { return tx_semaphore_get(&handle, TX_WAIT_FOREVER) == TX_SUCCESS; }
+	bool take(UINT ticks) { return tx_semaphore_get(&handle, ticks) == TX_SUCCESS; }
 	void give() { tx_semaphore_put(&handle); }
 protected:
 private:

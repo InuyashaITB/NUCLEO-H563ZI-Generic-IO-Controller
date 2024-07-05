@@ -11,29 +11,28 @@ Socket::Socket(const char* name) : Thread { name, TX_MID_PRIORITY, 1024 }, name{
 
 void Socket::main()
 {
+	SocketEvents e;
+
 	while(true)
 	{
-		MessageIDs id;
-		queue.pop(id);
-		switch (id)
+		if (event.waitForEventFlagsAny(static_cast<SocketEvents>(0xFFFF'FFFF), e, TX_WAIT_FOREVER))
 		{
-		case ListenOnSocket:
-			handleListenOnSocket();
-			break;
+			if (e & Connected)
+				handleConnected();
+			if (e & Disconnected)
+				handleDisconnected();
+			if (e & DataReceived)
+				handleDataReceived();
 		}
 	}
 }
 
-void Socket::handleListenOnSocket()
+void Socket::handleConnected()
 {
-	UINT result;
 	NXD_ADDRESS ip_address;
-	ULONG port;
-	NX_PACKET  *packet_ptr;
+	ULONG clientPort;
     /* Accept a client socket connection.  */
-	result =  nx_tcp_server_socket_accept(&socketHandle, NX_WAIT_FOREVER);
-
-    /* Check for error.  */
+	auto result = nx_tcp_server_socket_accept(&socketHandle, NX_WAIT_FOREVER);
     if (result)
     {
         nx_tcp_server_socket_unlisten(ipHandle, socketHandle.nx_tcp_socket_port);
@@ -42,8 +41,7 @@ void Socket::handleListenOnSocket()
         return;
     }
 
-    /*Get source ip address*/
-    result = nxd_tcp_socket_peer_info_get(&socketHandle, &ip_address, &port);
+    result = nxd_tcp_socket_peer_info_get(&socketHandle, &ip_address, &clientPort);
     if (result)
     {
         nx_tcp_server_socket_unaccept(&socketHandle);
@@ -53,29 +51,49 @@ void Socket::handleListenOnSocket()
         return;
     }
 
-    Debug::send("Peer info: IP (%s):%u", Socket::IP_TO_STRING(ip_address.nxd_ip_address.v4).data, port);
+    Debug::send("Peer info: IP (%s):%u", Socket::IP_TO_STRING(ip_address.nxd_ip_address.v4).data, clientPort);
 
-    while (true)
+    result = nx_tcp_socket_receive_notify(&socketHandle, Socket::s_DataReceived);
+    if (result)
     {
-        /* Receive a TCP message from the socket.  */
-        result =  nx_tcp_socket_receive(&socketHandle, &packet_ptr, TX_NO_WAIT);
-
-        if (result == NX_SUCCESS)
-        {
-        	rxCallback(packet_ptr->nx_packet_prepend_ptr, packet_ptr->nx_packet_length);
-            /* Release the packet.  */
-            nx_packet_release(packet_ptr);
-        }
-        else if (result == NX_NO_PACKET)
-        {
-        	disconnection.take(TX_NO_WAIT);
-        	tx_thread_sleep(1);
-        }
-        else
-        {
-        	break;
-        }
+        nx_tcp_server_socket_unaccept(&socketHandle);
+        nx_tcp_server_socket_unlisten(ipHandle, socketHandle.nx_tcp_socket_port);
+        nx_tcp_socket_delete(&socketHandle);
+		Debug::send("nx_tcp_socket_receive_notify error: %u", result);
+        return;
     }
+}
+
+void Socket::handleDisconnected()
+{
+    nx_tcp_socket_disconnect(&socketHandle, NX_WAIT_FOREVER);
+    nx_tcp_server_socket_unaccept(&socketHandle);
+    nx_tcp_server_socket_relisten(ipHandle, port, &socketHandle);
+}
+
+void Socket::handleDataReceived()
+{
+	NX_PACKET *packet_ptr;
+
+	while (true)
+	{
+		auto result =  nx_tcp_socket_receive(&socketHandle, &packet_ptr, TX_NO_WAIT);
+
+		if (result == NX_SUCCESS)
+		{
+			rxCallback(packet_ptr->nx_packet_prepend_ptr, packet_ptr->nx_packet_length);
+			nx_packet_release(packet_ptr);
+		}
+		else if (result == NX_NO_PACKET)
+		{
+			break;
+		}
+		else
+		{
+			Debug::send("nx_tcp_socket_receive error: 0x%X", result);
+			break;
+		}
+	}
 }
 
 Socket* Socket::findSocket(NX_TCP_SOCKET* socket)
@@ -99,7 +117,7 @@ void Socket::s_rxDisconnectReceived(NX_TCP_SOCKET *socket)
 void Socket::rxDisconnectReceived(NX_TCP_SOCKET* socket)
 {
 	Debug::send("Socket %s rxDisconnectReceived", name);
-	disconnection.give();
+	event.post(SocketEvents::Disconnected);
 }
 
 void Socket::s_rxConnectReceived(NX_TCP_SOCKET *socket, UINT port)
@@ -114,6 +132,21 @@ void Socket::s_rxConnectReceived(NX_TCP_SOCKET *socket, UINT port)
 void Socket::rxConnectReceived(NX_TCP_SOCKET* socket, UINT port)
 {
 	Debug::send("Socket %s rxConnectReceived", name);
+	event.post(SocketEvents::Connected);
+}
+
+void Socket::s_DataReceived(NX_TCP_SOCKET* socket)
+{
+	auto s = Socket::findSocket(socket);
+	if (s)
+		s->dataNotify(socket);
+	else
+		Debug::send("Connect Failed to find Socket holder (%p)", socket);
+}
+
+void Socket::dataNotify(NX_TCP_SOCKET* socket)
+{
+	event.post(SocketEvents::DataReceived);
 }
 
 bool Socket::initialize()
@@ -144,10 +177,21 @@ bool Socket::initialize()
 	return result == NX_SUCCESS;
 }
 
+void Socket::transmit(const char* message)
+{
+	NX_PACKET* sendPacket{nullptr};
+	nx_packet_allocate(&TXMemory::getPacketPool(), &sendPacket, NX_TCP_PACKET, NX_WAIT_FOREVER);
+	nx_packet_data_append(sendPacket, (void*)message, strlen(message), &TXMemory::getPacketPool(), NX_WAIT_FOREVER);
+	nx_tcp_socket_send(&socketHandle, sendPacket, 1);
+	nx_packet_release(sendPacket);
+}
+
 bool Socket::listen(UINT port, UINT maxConnections, DataReceivedFunction func)
 {
 	UINT result;
-	rxCallback = func;
+	this->rxCallback = func;
+	this->port = port;
+	this->maxConnections = maxConnections;
 
     /* Setup this thread to listen.  */
 	result =  nx_tcp_server_socket_listen(ipHandle, port, &socketHandle, maxConnections, Socket::s_rxConnectReceived);
@@ -160,14 +204,8 @@ bool Socket::listen(UINT port, UINT maxConnections, DataReceivedFunction func)
         return false;;
     }
 
-	auto cmd = Socket::MessageIDs::ListenOnSocket;
-	queue.push(cmd);
+    Debug::send("Socket listening on port %u", this->port);
 
 //	Debug::send("Socket Listen Started");
 	return result == NX_SUCCESS;
-}
-
-void Socket::quit()
-{
-
 }

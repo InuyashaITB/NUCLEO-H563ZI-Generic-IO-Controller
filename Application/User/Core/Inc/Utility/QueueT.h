@@ -11,7 +11,7 @@ public:
 		size_t byteCount = maxCount * sizeof(DataNode*);
 
 		char* pointer{nullptr};
-		tx_byte_allocate(&TXMemory::getPool(), (void **) &pointer, byteCount, TX_NO_WAIT);
+		tx_byte_allocate(&TXMemory::getBytePool(), (void **) &pointer, byteCount, TX_NO_WAIT);
 		tx_queue_create(&handle, (char*)name, sizeof(DataNode*) / sizeof(UINT), pointer, byteCount);
 
 		data = new DataNode[nodeCount = maxCount];

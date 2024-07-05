@@ -20,7 +20,7 @@ void Thread::main() {
 
 void Thread::create() {
 	char* pointer = nullptr;
-    tx_byte_allocate(&TXMemory::getPool(), (void **) &pointer, stackSize, TX_NO_WAIT);
+    tx_byte_allocate(&TXMemory::getBytePool(), (void **) &pointer, stackSize, TX_NO_WAIT);
 	auto result = tx_thread_create(&handle, (char*)name, _thread_launch, (ULONG)this, pointer, stackSize, priority, priority, TX_NO_TIME_SLICE, TX_AUTO_START);
 	(void)result;
 }

@@ -107,9 +107,7 @@ void MessageHandlerThread::main()
 
 	uart.startReceiving();
 	socket.initialize();
-	socket.listen(42069, 1, [this](uint8_t* data, size_t len) { socketRXReceived(data, len); });
-
-	PWM::printHelpMessage(uart);
+	socket.listen(42069, 0x2, [this](uint8_t* data, size_t len) { socketRXReceived(data, len); });
 
 	while(true)
 	{
@@ -182,6 +180,10 @@ bool MessageHandlerThread::parseJson(char* buffer) {
 				else if (strcmp("ResetStorage", command.toString()) == 0)
 				{
 					reset = true;
+				}
+				else if (strcmp("PrintPWM", command.toString()) == 0)
+				{
+					PWM::printHelpMessage();
 				}
 			}
 

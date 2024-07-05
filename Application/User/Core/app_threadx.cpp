@@ -29,6 +29,7 @@
 #include "MessageHandlerThread.h"
 #include "HeartBeat.h"
 #include "Configuration.h"
+#include "PWM.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
