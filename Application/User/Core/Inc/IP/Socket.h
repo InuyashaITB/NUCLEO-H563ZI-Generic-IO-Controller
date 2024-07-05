@@ -6,8 +6,10 @@
 
 #include "BinaryLock.h"
 #include "QueueT.h"
+#include "SocketEvent.h"
 #include "Thread.h"
 #include "ThreadXMemory.h"
+
 #include "app_netxduo.h"
 
 extern "C"
@@ -38,34 +40,34 @@ public:
 	bool initialize();
 	void transmit(const char* message);
 	bool listen(UINT port, UINT maxConnections, DataReceivedFunction func);
-	void quit();
 
 	static std::vector<Socket*>& getAllSockets() { return _sockets; }
 protected:
 	virtual void main() override;
 private:
-	enum MessageIDs {
-		ListenOnSocket
-	};
-	Queue<MessageIDs> queue { 5 };
-
-	void handleListenOnSocket();
-	void handleQuit();
+	void handleConnected();
+	void handleDisconnected();
+	void handleDataReceived();
 
 	void rxDisconnectReceived(NX_TCP_SOCKET* socket);
 	void rxConnectReceived(NX_TCP_SOCKET* socket, UINT port);
+	void dataNotify(NX_TCP_SOCKET* socket);
 
 	const char* name;
 	NX_IP* ipHandle;
 	NX_TCP_SOCKET socketHandle;
-	DataReceivedFunction rxCallback;
 
-	BinaryLock disconnection {nullptr};
+	DataReceivedFunction rxCallback;
+	ULONG port;
+	UINT maxConnections;
+
+	SocketEvent event{};
 
 	static std::vector<Socket*> _sockets;
 	static Socket* findSocket(NX_TCP_SOCKET* socket);
 	static void s_rxDisconnectReceived(NX_TCP_SOCKET* socket);
 	static void s_rxConnectReceived(NX_TCP_SOCKET* socket, UINT port);
+	static void s_DataReceived(NX_TCP_SOCKET* socket);
 };
 
 

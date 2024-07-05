@@ -107,7 +107,7 @@ void MessageHandlerThread::main()
 
 	uart.startReceiving();
 	socket.initialize();
-	socket.listen(42069, 1, [this](uint8_t* data, size_t len) { socketRXReceived(data, len); });
+	socket.listen(42069, 0x2, [this](uint8_t* data, size_t len) { socketRXReceived(data, len); });
 
 	while(true)
 	{
