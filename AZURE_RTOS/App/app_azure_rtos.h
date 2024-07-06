@@ -34,6 +34,8 @@
 
 #include "app_netxduo.h"
 
+#include "app_usbx_device.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 

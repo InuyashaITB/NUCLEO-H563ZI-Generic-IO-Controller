@@ -68,6 +68,8 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim5;
+TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim7;
 TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim12;
 TIM_HandleTypeDef htim13;
@@ -79,6 +81,8 @@ UART_HandleTypeDef huart3;
 DMA_HandleTypeDef handle_GPDMA1_Channel0;
 DMA_HandleTypeDef handle_GPDMA2_Channel0;
 
+PCD_HandleTypeDef hpcd_USB_DRD_FS;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -88,22 +92,25 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_GPDMA1_Init(void);
 static void MX_GPDMA2_Init(void);
-static void MX_USART3_UART_Init(void);
 static void MX_ETH_Init(void);
-static void MX_RNG_Init(void);
+static void MX_FLASH_Init(void);
+static void MX_USART3_UART_Init(void);
 static void MX_ICACHE_Init(void);
+static void MX_RNG_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM5_Init(void);
+static void MX_TIM6_Init(void);
+static void MX_TIM7_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM12_Init(void);
 static void MX_TIM13_Init(void);
 static void MX_TIM14_Init(void);
 static void MX_TIM15_Init(void);
 static void MX_TIM16_Init(void);
-static void MX_FLASH_Init(void);
+static void MX_USB_PCD_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -167,22 +174,25 @@ int main(void)
   MX_GPIO_Init();
   MX_GPDMA1_Init();
   MX_GPDMA2_Init();
-  MX_USART3_UART_Init();
   MX_ETH_Init();
+  MX_FLASH_Init();
+  MX_USART3_UART_Init();
+  MX_ICACHE_Init();
   MX_RNG_Init();
-//  MX_ICACHE_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM5_Init();
+  MX_TIM6_Init();
+  MX_TIM7_Init();
   MX_TIM8_Init();
   MX_TIM12_Init();
   MX_TIM13_Init();
   MX_TIM14_Init();
   MX_TIM15_Init();
   MX_TIM16_Init();
-  MX_FLASH_Init();
+  MX_USB_PCD_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -221,7 +231,7 @@ void SystemClock_Config(void)
   * in the RCC_OscInitTypeDef structure.
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48|RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS_DIGITAL;
+  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLL1_SOURCE_HSE;
@@ -253,6 +263,10 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
+  /** Configure the programming delay
+  */
+  __HAL_FLASH_SET_PROGRAM_DELAY(FLASH_PROGRAMMING_DELAY_2);
 }
 
 /**
@@ -336,12 +350,12 @@ static void MX_FLASH_Init(void)
   {
     Error_Handler();
   }
-
   pOBInit.OptionType = OPTIONBYTE_EDATA;
+  pOBInit.Banks = FLASH_BANK_1;
   pOBInit.EDATASize = 8;
   if (HAL_FLASHEx_OBProgram(&pOBInit) != HAL_OK)
   {
-	Error_Handler();
+    Error_Handler();
   }
   if (HAL_FLASH_OB_Lock() != HAL_OK)
   {
@@ -353,7 +367,7 @@ static void MX_FLASH_Init(void)
   }
 
   /* Launch Option Bytes Loading */
-  HAL_FLASH_OB_Launch();
+  /*HAL_FLASH_OB_Launch(); */
 
   /* USER CODE BEGIN FLASH_Init 2 */
   }
@@ -700,6 +714,82 @@ static void MX_TIM5_Init(void)
 }
 
 /**
+  * @brief TIM6 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM6_Init(void)
+{
+
+  /* USER CODE BEGIN TIM6_Init 0 */
+
+  /* USER CODE END TIM6_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM6_Init 1 */
+
+  /* USER CODE END TIM6_Init 1 */
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 0;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 65535;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM6_Init 2 */
+
+  /* USER CODE END TIM6_Init 2 */
+
+}
+
+/**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 0;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 65535;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+
+  /* USER CODE END TIM7_Init 2 */
+
+}
+
+/**
   * @brief TIM8 Initialization Function
   * @param None
   * @retval None
@@ -973,6 +1063,42 @@ static void MX_USART3_UART_Init(void)
 }
 
 /**
+  * @brief USB Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USB_PCD_Init(void)
+{
+
+  /* USER CODE BEGIN USB_Init 0 */
+
+  /* USER CODE END USB_Init 0 */
+
+  /* USER CODE BEGIN USB_Init 1 */
+
+  /* USER CODE END USB_Init 1 */
+  hpcd_USB_DRD_FS.Instance = USB_DRD_FS;
+  hpcd_USB_DRD_FS.Init.dev_endpoints = 8;
+  hpcd_USB_DRD_FS.Init.speed = USBD_FS_SPEED;
+  hpcd_USB_DRD_FS.Init.phy_itface = PCD_PHY_EMBEDDED;
+  hpcd_USB_DRD_FS.Init.Sof_enable = DISABLE;
+  hpcd_USB_DRD_FS.Init.low_power_enable = DISABLE;
+  hpcd_USB_DRD_FS.Init.lpm_enable = DISABLE;
+  hpcd_USB_DRD_FS.Init.battery_charging_enable = DISABLE;
+  hpcd_USB_DRD_FS.Init.vbus_sensing_enable = DISABLE;
+  hpcd_USB_DRD_FS.Init.bulk_doublebuffer_enable = DISABLE;
+  hpcd_USB_DRD_FS.Init.iso_singlebuffer_enable = DISABLE;
+  if (HAL_PCD_Init(&hpcd_USB_DRD_FS) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USB_Init 2 */
+
+  /* USER CODE END USB_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -987,22 +1113,76 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
+  __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED_RED_GPIO_Port, LED_RED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOF, GPIO_PIN_4, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : LED_RED_Pin */
-  GPIO_InitStruct.Pin = LED_RED_Pin;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_4, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PC13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PF4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LED_RED_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : VBUS_SENSE_Pin */
+  GPIO_InitStruct.Pin = VBUS_SENSE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(VBUS_SENSE_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : UCPD_CC1_Pin UCPD_CC2_Pin */
+  GPIO_InitStruct.Pin = UCPD_CC1_Pin|UCPD_CC2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PG4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : UCPD_FLT_Pin */
+  GPIO_InitStruct.Pin = UCPD_FLT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(UCPD_FLT_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : ARD_D1_TX_Pin ARD_D0_RX_Pin */
+  GPIO_InitStruct.Pin = ARD_D1_TX_Pin|ARD_D0_RX_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF8_LPUART1;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
@@ -1071,8 +1251,6 @@ void Error_Handler(void)
 
   while (1)
   {
-     HAL_GPIO_TogglePin(LED_RED_GPIO_Port,LED_RED_Pin);
-     HAL_Delay(1000);
   }
   /* USER CODE END Error_Handler_Debug */
 }
