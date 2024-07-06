@@ -1,3 +1,4 @@
+
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -111,28 +112,28 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
     PG11     ------> ETH_TX_EN
     PG13     ------> ETH_TXD0
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStruct.Pin = RMII_MDC_Pin|RMII_RXD0_Pin|RMII_RXD1_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_7;
+    GPIO_InitStruct.Pin = RMII_REF_CLK_Pin|RMII_MDIO_Pin|RMII_CRS_DV_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_15;
+    GPIO_InitStruct.Pin = RMII_TXD1_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF11_ETH;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_GPIO_Init(RMII_TXD1_GPIO_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_13;
+    GPIO_InitStruct.Pin = RMII_TXT_EN_Pin|RMI_TXD0_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -145,6 +146,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
   /* USER CODE BEGIN ETH_MspInit 1 */
 
   /* USER CODE END ETH_MspInit 1 */
+
   }
 
 }
@@ -178,13 +180,13 @@ void HAL_ETH_MspDeInit(ETH_HandleTypeDef* heth)
     PG11     ------> ETH_TX_EN
     PG13     ------> ETH_TXD0
     */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5);
+    HAL_GPIO_DeInit(GPIOC, RMII_MDC_Pin|RMII_RXD0_Pin|RMII_RXD1_Pin);
 
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_7);
+    HAL_GPIO_DeInit(GPIOA, RMII_REF_CLK_Pin|RMII_MDIO_Pin|RMII_CRS_DV_Pin);
 
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_15);
+    HAL_GPIO_DeInit(RMII_TXD1_GPIO_Port, RMII_TXD1_Pin);
 
-    HAL_GPIO_DeInit(GPIOG, GPIO_PIN_11|GPIO_PIN_13);
+    HAL_GPIO_DeInit(GPIOG, RMII_TXT_EN_Pin|RMI_TXD0_Pin);
 
     /* ETH interrupt DeInit */
     HAL_NVIC_DisableIRQ(ETH_IRQn);
@@ -224,6 +226,7 @@ void HAL_RNG_MspInit(RNG_HandleTypeDef* hrng)
   /* USER CODE BEGIN RNG_MspInit 1 */
 
   /* USER CODE END RNG_MspInit 1 */
+
   }
 
 }
@@ -312,6 +315,28 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE BEGIN TIM5_MspInit 1 */
 
   /* USER CODE END TIM5_MspInit 1 */
+  }
+  else if(htim_base->Instance==TIM6)
+  {
+  /* USER CODE BEGIN TIM6_MspInit 0 */
+
+  /* USER CODE END TIM6_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_TIM6_CLK_ENABLE();
+  /* USER CODE BEGIN TIM6_MspInit 1 */
+
+  /* USER CODE END TIM6_MspInit 1 */
+  }
+  else if(htim_base->Instance==TIM7)
+  {
+  /* USER CODE BEGIN TIM7_MspInit 0 */
+
+  /* USER CODE END TIM7_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_TIM7_CLK_ENABLE();
+  /* USER CODE BEGIN TIM7_MspInit 1 */
+
+  /* USER CODE END TIM7_MspInit 1 */
   }
   else if(htim_base->Instance==TIM8)
   {
@@ -444,6 +469,28 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
   /* USER CODE BEGIN TIM5_MspDeInit 1 */
 
   /* USER CODE END TIM5_MspDeInit 1 */
+  }
+  else if(htim_base->Instance==TIM6)
+  {
+  /* USER CODE BEGIN TIM6_MspDeInit 0 */
+
+  /* USER CODE END TIM6_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM6_CLK_DISABLE();
+  /* USER CODE BEGIN TIM6_MspDeInit 1 */
+
+  /* USER CODE END TIM6_MspDeInit 1 */
+  }
+  else if(htim_base->Instance==TIM7)
+  {
+  /* USER CODE BEGIN TIM7_MspDeInit 0 */
+
+  /* USER CODE END TIM7_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM7_CLK_DISABLE();
+  /* USER CODE BEGIN TIM7_MspDeInit 1 */
+
+  /* USER CODE END TIM7_MspDeInit 1 */
   }
   else if(htim_base->Instance==TIM8)
   {
@@ -615,6 +662,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
   /* USER CODE BEGIN USART3_MspInit 1 */
 
   /* USER CODE END USART3_MspInit 1 */
+
   }
 
 }
@@ -650,6 +698,70 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
   /* USER CODE BEGIN USART3_MspDeInit 1 */
 
   /* USER CODE END USART3_MspDeInit 1 */
+  }
+
+}
+
+/**
+* @brief PCD MSP Initialization
+* This function configures the hardware resources used in this example
+* @param hpcd: PCD handle pointer
+* @retval None
+*/
+void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
+{
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+  if(hpcd->Instance==USB_DRD_FS)
+  {
+  /* USER CODE BEGIN USB_DRD_FS_MspInit 0 */
+
+  /* USER CODE END USB_DRD_FS_MspInit 0 */
+
+  /** Initializes the peripherals clock
+  */
+    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USB;
+    PeriphClkInitStruct.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+    {
+      Error_Handler();
+    }
+
+  /* Enable VDDUSB */
+  HAL_PWREx_EnableVddUSB();
+    /* Peripheral clock enable */
+    __HAL_RCC_USB_CLK_ENABLE();
+    /* USB_DRD_FS interrupt Init */
+    HAL_NVIC_SetPriority(USB_DRD_FS_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(USB_DRD_FS_IRQn);
+  /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
+
+  /* USER CODE END USB_DRD_FS_MspInit 1 */
+
+  }
+
+}
+
+/**
+* @brief PCD MSP De-Initialization
+* This function freeze the hardware resources used in this example
+* @param hpcd: PCD handle pointer
+* @retval None
+*/
+void HAL_PCD_MspDeInit(PCD_HandleTypeDef* hpcd)
+{
+  if(hpcd->Instance==USB_DRD_FS)
+  {
+  /* USER CODE BEGIN USB_DRD_FS_MspDeInit 0 */
+
+  /* USER CODE END USB_DRD_FS_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_USB_CLK_DISABLE();
+
+    /* USB_DRD_FS interrupt DeInit */
+    HAL_NVIC_DisableIRQ(USB_DRD_FS_IRQn);
+  /* USER CODE BEGIN USB_DRD_FS_MspDeInit 1 */
+
+  /* USER CODE END USB_DRD_FS_MspDeInit 1 */
   }
 
 }

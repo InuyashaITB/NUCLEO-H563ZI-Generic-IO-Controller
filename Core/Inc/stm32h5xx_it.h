@@ -55,6 +55,7 @@ void DebugMon_Handler(void);
 void GPDMA1_Channel0_IRQHandler(void);
 void USART3_IRQHandler(void);
 void TIM17_IRQHandler(void);
+void USB_DRD_FS_IRQHandler(void);
 void GPDMA2_Channel0_IRQHandler(void);
 void ETH_IRQHandler(void);
 /* USER CODE BEGIN EFP */
