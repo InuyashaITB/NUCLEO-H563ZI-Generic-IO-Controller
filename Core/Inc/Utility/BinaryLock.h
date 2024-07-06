@@ -6,7 +6,7 @@
 class BinaryLock : public Lock
 {
 public:
-	BinaryLock(const char* name) : Lock(name, 1) { }
+	BinaryLock(const char* name = nullptr) : Lock(name, 1) { }
 protected:
 private:
 };

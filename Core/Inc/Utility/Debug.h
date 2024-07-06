@@ -4,6 +4,7 @@
 #include <cstdarg>
 #include <cstdio>
 
+#include <CDC.h>
 #include <QueueT.h>
 #include <Socket.h>
 #include <Thread.h>
@@ -23,21 +24,16 @@ public:
 		getInstance().s(ptr, size);
 	}
 
-	static void transmitDirect(const char* m)
+	template<typename T>
+	static void transmitDirect(T m)
 	{
 		for (auto uart : UART::getAllChannels())
 			uart->transmit(m);
 
 		for (auto socket : Socket::getAllSockets())
 			socket->transmit(m);
-	}
-	static void transmitDirect(OutputType& m)
-	{
-		for (auto uart : UART::getAllChannels())
-			uart->transmit(m);
 
-		for (auto socket : Socket::getAllSockets())
-			socket->transmit(m);
+		CDC::getInstance().transmit(m);
 	}
 protected:
 
@@ -64,13 +60,10 @@ private:
 
 	void s(const char *str, va_list args) {
 		OutputType message;
-		size_t bytes = vsnprintf(message, sizeof(OutputType), str, args);
+		size_t byteCount = vsnprintf(message, sizeof(OutputType), str, args);
 
-		if (message[bytes - 1] != '\n')
-		{
-			message[bytes] = '\n';
-			message[bytes+1] = '\0';
-		}
+		if (byteCount >= 2 && (message[byteCount - 2] != '\r' || message[byteCount - 1] != '\n'))
+			strcat(message, "\r\n");
 
 		queue.push(message, 0);
 	}
@@ -79,11 +72,8 @@ private:
 		memcpy(message, ptr, size);
 		message[size] = 0;
 
-		if (message[size - 1] != '\n')
-		{
-			message[size] = '\n';
-			message[size+1] = '\0';
-		}
+		if (size >= 2 && (message[size - 2] != '\r' || message[size - 1] != '\n'))
+			strcat(message, "\r\n");
 
 		queue.push(message, 0);
 	}

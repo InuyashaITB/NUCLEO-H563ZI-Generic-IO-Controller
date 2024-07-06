@@ -393,14 +393,14 @@ static VOID App_Link_Thread_Entry(ULONG thread_input)
         if(status == NX_SUCCESS)
         {
           /* The network cable is connected again. */
-          printf("The network cable is connected again.\n");
+          printf("The network cable is connected again.");
           /* Print IPERF is available again. */
-          printf("IPERF is available again.\n");
+          printf("IPERF is available again.");
         }
         else
         {
           /* The network cable is connected. */
-          printf("The network cable is connected.\n");
+          printf("The network cable is connected.");
           /* Send command to Enable Nx driver. */
           nx_ip_driver_direct_command(&NetXDuoEthIpInstance, NX_LINK_ENABLE,
                                       &actual_status);
@@ -416,7 +416,7 @@ static VOID App_Link_Thread_Entry(ULONG thread_input)
       {
         linkdown = 1;
         /* The network cable is not connected. */
-        printf("The network cable is not connected.\n");
+        printf("The network cable is not connected.");
       }
     }
 

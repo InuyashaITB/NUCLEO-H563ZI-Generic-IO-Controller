@@ -17,11 +17,11 @@ void Socket::main()
 	{
 		if (event.waitForEventFlagsAny(static_cast<SocketEvents>(0xFFFF'FFFF), e, TX_WAIT_FOREVER))
 		{
-			if (e & Connected)
+			if (static_cast<bool>(e & SocketEvents::Connected))
 				handleConnected();
-			if (e & Disconnected)
+			if (static_cast<bool>(e & SocketEvents::Disconnected))
 				handleDisconnected();
-			if (e & DataReceived)
+			if (static_cast<bool>(e & SocketEvents::DataReceived))
 				handleDataReceived();
 		}
 	}

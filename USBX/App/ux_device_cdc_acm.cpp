@@ -1,13 +1,13 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    app_threadx.c
+  * @file    ux_device_cdc_acm.c
   * @author  MCD Application Team
-  * @brief   ThreadX applicative file
+  * @brief   USBX Device applicative file
   ******************************************************************************
     * @attention
   *
-  * Copyright (c) 2023 STMicroelectronics.
+  * Copyright (c) 2024 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -19,17 +19,10 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "app_threadx.h"
+#include "ux_device_cdc_acm.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ThreadXMemory.h"
-#include "Thread.h"
-#include "Debug.h"
-#include "MessageHandlerThread.h"
-#include "HeartBeat.h"
-#include "Configuration.h"
-#include "PWM.h"
 #include "CDC.h"
 /* USER CODE END Includes */
 
@@ -50,59 +43,64 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-static TXMemory txMemory;
-static Configuration config;
-static MessageHandlerThread messageHandler {config};
-static HeartBeat heartBeat { GPIOF, GPIO_PIN_4 };
-static CDC usbCDC;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-extern "C" void reroute_tx_app()
-{
-	Thread::launchAllThreads();
-	heartBeat.start(MS_TO_TICKS(500));
 
-	for (auto pair : portMap)
-		for (auto storedConfig : config.data.pinConfigurations[pair.second])
-			config.handleConfiguration(storedConfig);
-}
 /* USER CODE END PFP */
 
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
+
 /**
-  * @brief  Application ThreadX Initialization.
-  * @param memory_ptr: memory pointer
-  * @retval int
+  * @brief  USBD_CDC_ACM_Activate
+  *         This function is called when insertion of a CDC ACM device.
+  * @param  cdc_acm_instance: Pointer to the cdc acm class instance.
+  * @retval none
   */
-UINT App_ThreadX_Init(VOID *memory_ptr)
+VOID USBD_CDC_ACM_Activate(VOID *cdc_acm_instance)
 {
-  UINT ret = TX_SUCCESS;
-  /* USER CODE BEGIN App_ThreadX_MEM_POOL */
-  /* USER CODE END App_ThreadX_MEM_POOL */
-  /* USER CODE BEGIN App_ThreadX_Init */
+  /* USER CODE BEGIN USBD_CDC_ACM_Activate */
+  CDC::setHandle((UX_SLAVE_CLASS_CDC_ACM*)cdc_acm_instance);
+  /* USER CODE END USBD_CDC_ACM_Activate */
 
-  /* USER CODE END App_ThreadX_Init */
-
-  return ret;
+  return;
 }
 
-  /**
-  * @brief  Function that implements the kernel's initialization.
-  * @param  None
-  * @retval None
+/**
+  * @brief  USBD_CDC_ACM_Deactivate
+  *         This function is called when extraction of a CDC ACM device.
+  * @param  cdc_acm_instance: Pointer to the cdc acm class instance.
+  * @retval none
   */
-void MX_ThreadX_Init(void)
+VOID USBD_CDC_ACM_Deactivate(VOID *cdc_acm_instance)
 {
-  /* USER CODE BEGIN  Before_Kernel_Start */
-  /* USER CODE END  Before_Kernel_Start */
+  /* USER CODE BEGIN USBD_CDC_ACM_Deactivate */
+  UX_PARAMETER_NOT_USED(cdc_acm_instance);
+  /* USER CODE END USBD_CDC_ACM_Deactivate */
 
-  tx_kernel_enter();
+  return;
+}
 
-  /* USER CODE BEGIN  Kernel_Start_Error */
+/**
+  * @brief  USBD_CDC_ACM_ParameterChange
+  *         This function is invoked to manage the CDC ACM class requests.
+  * @param  cdc_acm_instance: Pointer to the cdc acm class instance.
+  * @retval none
+  */
+VOID USBD_CDC_ACM_ParameterChange(VOID *cdc_acm_instance)
+{
+  /* USER CODE BEGIN USBD_CDC_ACM_ParameterChange */
+  UX_PARAMETER_NOT_USED(cdc_acm_instance);
+  /* USER CODE END USBD_CDC_ACM_ParameterChange */
 
-  /* USER CODE END  Kernel_Start_Error */
+  return;
 }
 
 /* USER CODE BEGIN 1 */
+
 /* USER CODE END 1 */
