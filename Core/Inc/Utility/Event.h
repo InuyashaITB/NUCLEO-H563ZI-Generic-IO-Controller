@@ -15,7 +15,7 @@ public:
 	bool waitForEventFlagsAny(FlagType waitForFlags, FlagType& outputFlags, ULONG ticks = TX_WAIT_FOREVER)
 	{
 		auto result = tx_event_flags_get(&handle, (ULONG)waitForFlags, TX_OR_CLEAR, (ULONG*)&outputFlags, ticks);
-		return (result == TX_SUCCESS && ((outputFlags & waitForFlags) != 0));
+		return (result == TX_SUCCESS && (static_cast<ULONG>((outputFlags & waitForFlags)) != 0));
 	}
 
 	bool waitForEventFlagsAll(FlagType waitForFlags, FlagType& outputFlags, ULONG ticks = TX_WAIT_FOREVER)
@@ -26,12 +26,13 @@ public:
 
 	void post(FlagType flag)
 	{
-		tx_event_flags_set(&handle, flag, TX_OR);
+		tx_event_flags_set(&handle, (ULONG)flag, TX_OR);
 	}
 protected:
 private:
 	TX_EVENT_FLAGS_GROUP handle;
 };
+
 
 
 

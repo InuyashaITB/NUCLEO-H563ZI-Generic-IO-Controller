@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include <CDC.h>
 #include <Configuration.h>
 #include <Message.h>
 #include <QueueT.h>

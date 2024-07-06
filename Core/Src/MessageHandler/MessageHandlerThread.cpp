@@ -108,6 +108,7 @@ void MessageHandlerThread::main()
 	uart.startReceiving();
 	socket.initialize();
 	socket.listen(42069, 0x2, [this](uint8_t* data, size_t len) { socketRXReceived(data, len); });
+	CDC::getInstance().setRxCallback([this](uint8_t* data, size_t len) { socketRXReceived(data, len); });
 
 	while(true)
 	{

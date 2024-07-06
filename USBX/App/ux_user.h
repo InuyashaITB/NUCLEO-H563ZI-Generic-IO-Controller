@@ -350,7 +350,7 @@
 
 /* Defined, this macro disables CDC ACM non-blocking transmission support. */
 
-/* #define UX_DEVICE_CLASS_CDC_ACM_TRANSMISSION_DISABLE */
+#define UX_DEVICE_CLASS_CDC_ACM_TRANSMISSION_DISABLE
 
 /* Defined, device HID interrupt OUT transfer is supported.  */
 
