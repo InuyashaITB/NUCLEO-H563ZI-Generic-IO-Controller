@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "CDC.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -201,6 +201,7 @@ static VOID app_ux_device_thread_entry(ULONG thread_input)
   /* USER CODE END app_ux_device_thread_entry */
 }
 
+bool usb_connected = false;
 /**
   * @brief  USBD_ChangeFunction
   *         This function is called when the device state changes.
@@ -212,7 +213,6 @@ static UINT USBD_ChangeFunction(ULONG Device_State)
    UINT status = UX_SUCCESS;
 
   /* USER CODE BEGIN USBD_ChangeFunction0 */
-
   /* USER CODE END USBD_ChangeFunction0 */
 
   switch (Device_State)
@@ -220,7 +220,8 @@ static UINT USBD_ChangeFunction(ULONG Device_State)
     case UX_DEVICE_ATTACHED:
 
       /* USER CODE BEGIN UX_DEVICE_ATTACHED */
-
+    	usb_connected = true;
+    	CDC::sendEvent(CDCEvents::Connected);
       /* USER CODE END UX_DEVICE_ATTACHED */
 
       break;
@@ -228,7 +229,8 @@ static UINT USBD_ChangeFunction(ULONG Device_State)
     case UX_DEVICE_REMOVED:
 
       /* USER CODE BEGIN UX_DEVICE_REMOVED */
-
+    	usb_connected = false;
+    	CDC::sendEvent(CDCEvents::Disconnected);
       /* USER CODE END UX_DEVICE_REMOVED */
 
       break;
@@ -252,7 +254,6 @@ static UINT USBD_ChangeFunction(ULONG Device_State)
     case UX_DCD_STM32_DEVICE_SUSPENDED:
 
       /* USER CODE BEGIN UX_DCD_STM32_DEVICE_SUSPENDED */
-
       /* USER CODE END UX_DCD_STM32_DEVICE_SUSPENDED */
 
       break;
@@ -260,7 +261,6 @@ static UINT USBD_ChangeFunction(ULONG Device_State)
     case UX_DCD_STM32_DEVICE_RESUMED:
 
       /* USER CODE BEGIN UX_DCD_STM32_DEVICE_RESUMED */
-
       /* USER CODE END UX_DCD_STM32_DEVICE_RESUMED */
 
       break;

@@ -25,6 +25,7 @@ public:
 protected:
 	virtual void main() override;
 private:
+	bool connected{false};
 	static CDC* instance;
 	UX_SLAVE_CLASS_CDC_ACM* handle;
 

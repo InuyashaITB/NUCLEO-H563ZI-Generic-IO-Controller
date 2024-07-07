@@ -3,6 +3,8 @@
 
 CDC* CDC::instance {nullptr};
 
+extern bool usb_connected;
+
 void CDC::main()
 {
 	while (handle == nullptr)
@@ -16,11 +18,17 @@ void CDC::main()
 		CDCEvents e;
 		events.waitForEventFlagsAny(static_cast<CDCEvents>(0xFFFF'FFFF), e, TX_WAIT_FOREVER);
 
-		if (e & CDCEvents::Connected)
-			Debug::send("USB-CDC Connected");
-
 		if (e & CDCEvents::Disconnected)
+		{
 			Debug::send("USB-CDC Disconnected");
+			connected = usb_connected;
+		}
+
+		if (e & CDCEvents::Connected)
+		{
+			Debug::send("USB-CDC Connected");
+			connected = usb_connected;
+		}
 
 		if (e & CDCEvents::DataReceived)
 		{
@@ -38,7 +46,7 @@ void CDC::transmit(const char* msg)
 	const char* pMsg = msg;
 	ULONG len = strlen(msg);
 
-	while (len > 0)
+	while (len > 0 && connected)
 	{
 		ULONG sentLength = 0;
 		ux_device_class_cdc_acm_write(handle, (UCHAR*)pMsg, len, &sentLength);

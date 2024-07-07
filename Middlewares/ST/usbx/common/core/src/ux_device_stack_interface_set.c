@@ -262,7 +262,7 @@ ULONG                   max_transfer_length, n_trans;
             transfer_request -> ux_slave_transfer_request_endpoint =  endpoint;
                 
             /* By default the timeout is infinite on request.  */
-            transfer_request -> ux_slave_transfer_request_timeout = UX_WAIT_FOREVER;
+            transfer_request -> ux_slave_transfer_request_timeout = 10;
             
             /* Attach the interface to the endpoint.  */
             endpoint -> ux_slave_endpoint_interface =  interface_ptr;

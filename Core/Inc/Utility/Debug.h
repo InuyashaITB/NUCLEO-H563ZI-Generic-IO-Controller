@@ -59,23 +59,53 @@ private:
 	Socket *socket;
 
 	void s(const char *str, va_list args) {
-		OutputType message;
-		size_t byteCount = vsnprintf(message, sizeof(OutputType), str, args);
+		static char buffer[4096];
+		char* pBuffer = buffer;
+		size_t byteCount = vsnprintf(buffer, sizeof(buffer), str, args);
 
-		if (byteCount >= 2 && (message[byteCount - 2] != '\r' || message[byteCount - 1] != '\n'))
-			strcat(message, "\r\n");
+		if (byteCount >= 2 && (buffer[byteCount - 2] != '\r' || buffer[byteCount - 1] != '\n'))
+		{
+			buffer[byteCount] = '\r';
+			buffer[byteCount + 1] = '\n';
+			buffer[byteCount + 2] = 0;
+			byteCount += 3;
+		}
 
-		queue.push(message, 0);
+		while (byteCount > 0)
+		{
+			size_t len = std::min(byteCount, sizeof(OutputType) - 1);
+			OutputType message;
+			std::copy(pBuffer, pBuffer + len, message);
+			message[len] = 0;
+			queue.push(message, 0);
+
+			pBuffer += len;
+			byteCount -= len;
+		}
 	}
 	void s(const uint8_t *ptr, size_t size) {
-		OutputType message;
-		memcpy(message, ptr, size);
-		message[size] = 0;
+		while (size > 0)
+		{
+			size_t len = std::min(sizeof(OutputType) - 1, size);
+			OutputType message;
 
-		if (size >= 2 && (message[size - 2] != '\r' || message[size - 1] != '\n'))
-			strcat(message, "\r\n");
+			memcpy(message, ptr, len);
 
-		queue.push(message, 0);
+			message[len] = 0;
+
+			queue.push(message, 0);
+
+			ptr += len;
+			size -= len;
+
+			if (size == 0 && (message[len - 2] != '\r' || message[len - 1] != '\n'))
+			{
+				message[0] = '\r';
+				message[1] = '\n';
+				message[2] = 0;
+				queue.push(message, 0);
+			}
+		}
 	}
 };
 
